@@ -163,18 +163,18 @@ robyn_outputs <- function(InputCollect, OutputModels,
     if ("data" %in% names(clusterCollect)) {
       OutputCollect$resultHypParam <- left_join(
         OutputCollect$resultHypParam,
-        select(clusterCollect$data, .data$solID, .data$cluster, .data$top_sol),
+        select(clusterCollect$data, "solID", "cluster", "top_sol"),
         by = "solID"
       )
       OutputCollect$xDecompAgg <- left_join(
         OutputCollect$xDecompAgg,
-        select(clusterCollect$data, .data$solID, .data$cluster, .data$top_sol),
+        select(clusterCollect$data, "solID", "cluster", "top_sol"),
         by = "solID"
       ) %>%
         left_join(
           select(
-            clusterCollect$df_cluster_ci, .data$rn, .data$cluster, .data$boot_mean,
-            .data$boot_se, .data$ci_low, .data$ci_up, .data$rn
+            clusterCollect$df_cluster_ci,
+            "rn", "cluster", "boot_mean", "boot_se", "ci_low", "ci_up"
           ),
           by = c("rn", "cluster")
         ) %>%
@@ -186,18 +186,18 @@ robyn_outputs <- function(InputCollect, OutputModels,
         )
       OutputCollect$mediaVecCollect <- left_join(
         OutputCollect$mediaVecCollect,
-        select(clusterCollect$data, .data$solID, .data$cluster, .data$top_sol),
+        select(clusterCollect$data, "solID", "cluster", "top_sol"),
         by = "solID"
       )
       OutputCollect$xDecompVecCollect <- left_join(
         OutputCollect$xDecompVecCollect,
-        select(clusterCollect$data, .data$solID, .data$cluster, .data$top_sol),
+        select(clusterCollect$data, "solID", "cluster", "top_sol"),
         by = "solID"
       )
       if (calibrated) {
         OutputCollect$resultCalibration <- left_join(
           OutputCollect$resultCalibration,
-          select(clusterCollect$data, .data$solID, .data$cluster, .data$top_sol),
+          select(clusterCollect$data, "solID", "cluster", "top_sol"),
           by = "solID"
         )
       }
@@ -261,6 +261,42 @@ robyn_outputs <- function(InputCollect, OutputModels,
         message(paste("Failed exporting results, but returned model results anyways:\n", err))
       }
     )
+  }
+
+  ## Quick Commerce: Run QC-specific validation if QC metadata present
+  if (!is.null(InputCollect$qcommerce_meta) && InputCollect$qcommerce_meta$qc_enabled) {
+    if (!quiet) message(">>> Running Quick Commerce validation...")
+
+    qc_validation <- robyn_qcommerce_validate(
+      OutputCollect = OutputCollect,
+      InputCollect = InputCollect,
+      dt_input = InputCollect$dt_input
+    )
+
+    # Store validation results
+    OutputCollect$qcommerce_validation <- qc_validation
+
+    # Print validation summary
+    if (!quiet) {
+      message(sprintf("QC Validation Status: %s", qc_validation$validation_summary$overall_status))
+      message(sprintf("Channels validated: %d/%d appropriate for Quick Commerce",
+                     qc_validation$validation_summary$channels_appropriate_for_qc,
+                     qc_validation$validation_summary$total_channels_validated))
+
+      if (length(qc_validation$warnings) > 0) {
+        message("QC Warnings found:")
+        for (warning in qc_validation$warnings) {
+          message(paste("  -", warning))
+        }
+      }
+
+      if (length(qc_validation$recommendations) > 0) {
+        message("QC Recommendations:")
+        for (rec in qc_validation$recommendations) {
+          message(paste("  -", rec))
+        }
+      }
+    }
   }
 
   if (!is.null(OutputModels$hyper_updated)) OutputCollect$hyper_updated <- OutputModels$hyper_updated

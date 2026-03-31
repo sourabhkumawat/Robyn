@@ -117,8 +117,8 @@ robyn_write <- function(InputCollect,
         left_join(performance, by = c("rn" = "channel")) %>%
         select(
           variable = .data$rn, coef = .data$coef,
-          decompPer = .data$xDecompPerc, decompAgg = .data$xDecompAggRF,
-          .data$performance, "mean_response" = .data$response, "mean_spend" = .data$spend,
+          decompPer = .data$xDecompPerc, decompAgg = xDecompAggRF,
+          performance, "mean_response" = response, "mean_spend" = spend,
           contains("boot_mean"), contains("ci_")
         ) %>%
         mutate(
@@ -126,7 +126,7 @@ robyn_write <- function(InputCollect,
           mean_spend = .data$mean_spend / InputCollect$totalObservations
         )
       outputs$errors <- filter(OutputCollect$resultHypParam, .data$solID == select_model) %>%
-        select(starts_with("rsq_"), starts_with("nrmse"), .data$decomp.rssd, .data$mape)
+        select(starts_with("rsq_"), starts_with("nrmse"), "decomp.rssd", "mape")
       outputs$hyper_values <- OutputCollect$resultHypParam %>%
         filter(.data$solID == select_model) %>%
         select(contains(HYPS_NAMES), dplyr::ends_with("_penalty"), any_of(HYPS_OTHERS)) %>%

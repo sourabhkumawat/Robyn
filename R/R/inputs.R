@@ -117,6 +117,23 @@
 #' You can also use experimental results from multiple channels; to do so,
 #' provide concatenated channel value, i.e. "channel_A+channel_B".
 #' Check "Guide for calibration source" section.
+#' @param channel_types Character vector. Optional. Quick Commerce channel types
+#' for each variable in \code{paid_media_spends}. One of \code{c("performance",
+#' "brand", "app", "social", "general")} for each channel. When provided,
+#' automatically generates Quick Commerce optimized hyperparameters with lower
+#' theta ranges suitable for quick delivery attribution. If NULL, standard
+#' hyperparameter setup is used. Must have same length as \code{paid_media_spends}.
+#' @param city_tier Character. Optional. One of \code{c("tier1", "tier2", "tier3")}.
+#' Default "tier1". Used for Quick Commerce context-aware optimizations when
+#' \code{context_aware = TRUE}. Tier1: Mumbai/Delhi/Bangalore patterns,
+#' Tier2: Pune/Hyderabad patterns, Tier3: Smaller cities with more impulse behavior.
+#' @param context_aware Boolean. Optional. Enable Quick Commerce context-aware
+#' adstock calculations with festival, day-of-week, city tier, and weather
+#' adjustments optimized for Indian market. Default FALSE. When TRUE, requires
+#' \code{channel_types} to be specified.
+#' @param qc_region Character. Optional. One of \code{c("india", "global")}.
+#' Default "india". Region for Quick Commerce optimizations. "india" enables
+#' 6-year festival calendar (2023-2028) and India-specific patterns.
 #' @param InputCollect Default to NULL. \code{robyn_inputs}'s output when
 #' \code{hyperparameters} are not yet set.
 #' @param json_file Character. JSON file to import previously exported inputs or
@@ -173,6 +190,10 @@ robyn_inputs <- function(dt_input = NULL,
                          window_start = NULL,
                          window_end = NULL,
                          calibration_input = NULL,
+                         channel_types = NULL,
+                         city_tier = "tier1",
+                         context_aware = FALSE,
+                         qc_region = "india",
                          json_file = NULL,
                          InputCollect = NULL,
                          ...) {
@@ -327,6 +348,52 @@ robyn_inputs <- function(dt_input = NULL,
       custom_params = list(...)
     )
 
+    ## Quick Commerce: Auto-generate hyperparameters if channel_types provided
+    if (!is.null(channel_types) && is.null(hyperparameters)) {
+      message("Quick Commerce mode detected: Auto-generating optimized hyperparameters...")
+
+      # Validate QC parameters
+      if (length(channel_types) != length(paid_collect$paid_media_selected)) {
+        stop(sprintf("channel_types (%d) must have same length as paid_media_spends (%d)",
+                     length(channel_types), length(paid_collect$paid_media_selected)))
+      }
+
+      valid_channels <- c("performance", "brand", "app", "social", "general")
+      if (!all(channel_types %in% valid_channels)) {
+        stop(sprintf("All channel_types must be one of: %s",
+                     paste(valid_channels, collapse = ", ")))
+      }
+
+      valid_tiers <- c("tier1", "tier2", "tier3")
+      if (!city_tier %in% valid_tiers) {
+        stop(sprintf("city_tier must be one of: %s", paste(valid_tiers, collapse = ", ")))
+      }
+
+      # Auto-generate QC hyperparameters
+      hyperparameters <- robyn_qcommerce_hyperparameters(
+        paid_media_vars = paid_collect$paid_media_selected,
+        channel_types = channel_types,
+        region = qc_region
+      )
+
+      # Add organic hyperparameters if present
+      if (length(organic_vars) > 0) {
+        for (org_var in organic_vars) {
+          hyperparameters[[paste0(org_var, "_thetas")]] <- c(0.1, 0.4)
+          hyperparameters[[paste0(org_var, "_alphas")]] <- c(0.5, 3)
+          hyperparameters[[paste0(org_var, "_gammas")]] <- c(0.3, 1)
+        }
+      }
+
+      # Add train_size parameter
+      hyperparameters$train_size <- c(0.5, 0.8)
+
+      message(sprintf("Generated QC hyperparameters for %d channels with types: %s",
+                      length(channel_types), paste(channel_types, collapse = ", ")))
+      message(sprintf("City tier: %s, Context-aware: %s, Region: %s",
+                      city_tier, context_aware, qc_region))
+    }
+
     if (!is.null(hyperparameters)) {
       ### Conditional output 1.2
       ## Running robyn_inputs() for the 1st time & 'hyperparameters' provided --> run robyn_engineering()
@@ -393,13 +460,28 @@ robyn_inputs <- function(dt_input = NULL,
 
   # Save R and Robyn's versions
   if (TRUE) {
-    ver <- as.character(utils::packageVersion("Robyn"))
+    ver <- tryCatch(as.character(utils::packageVersion("Robyn")), error = function(e) "local-source")
     rver <- utils::sessionInfo()$R.version
-    origin <- ifelse(is.null(utils::packageDescription("Robyn")$Repository), "dev", "stable")
+    origin <- tryCatch(
+      ifelse(is.null(utils::packageDescription("Robyn")$Repository), "dev", "stable"),
+      error = function(e) "dev"
+    ))
     InputCollect$version <- sprintf(
       "Robyn (%s) v%s [R-%s.%s]",
       origin, ver, rver$major, rver$minor
     )
+  }
+
+  ## Store Quick Commerce metadata for transformation functions
+  if (!is.null(channel_types)) {
+    InputCollect$qcommerce_meta <- list(
+      channel_types = channel_types,
+      city_tier = city_tier,
+      context_aware = context_aware,
+      qc_region = qc_region,
+      qc_enabled = TRUE
+    )
+    message("Quick Commerce metadata stored in InputCollect for context-aware transformations")
   }
 
   class(InputCollect) <- c("robyn_inputs", class(InputCollect))
@@ -677,7 +759,7 @@ prophet_decomp <- function(dt_transform, dt_holidays,
                            factor_vars, context_vars, organic_vars, paid_media_spends,
                            paid_media_vars, intervalType, dayInterval, custom_params) {
   check_prophet(dt_holidays, prophet_country, prophet_vars, prophet_signs, dayInterval)
-  recurrence <- select(dt_transform, .data$ds, .data$dep_var) %>% rename("y" = "dep_var")
+  recurrence <- select(dt_transform, "ds", "dep_var") %>% rename("y" = "dep_var")
   holidays <- set_holidays(dt_transform, dt_holidays, intervalType)
   use_trend <- "trend" %in% prophet_vars
   use_holiday <- "holiday" %in% prophet_vars

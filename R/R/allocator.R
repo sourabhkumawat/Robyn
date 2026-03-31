@@ -661,11 +661,11 @@ robyn_allocator <- function(robyn_object = NULL,
   eval_list$levs1 <- levs1
 
   dt_optimOutScurve <- rbind(
-    select(dt_optimOut, .data$channels, .data$initSpendUnit, .data$initResponseUnitSim) %>%
+    select(dt_optimOut, "channels", "initSpendUnit", "initResponseUnitSim") %>%
       mutate(x = levs1[1]) %>% as.matrix(),
-    select(dt_optimOut, .data$channels, .data$optmSpendUnit, .data$optmResponseUnit) %>%
+    select(dt_optimOut, "channels", "optmSpendUnit", "optmResponseUnit") %>%
       mutate(x = levs1[2]) %>% as.matrix(),
-    select(dt_optimOut, .data$channels, .data$optmSpendUnitUnbound, .data$optmResponseUnitUnbound) %>%
+    select(dt_optimOut, "channels", "optmSpendUnitUnbound", "optmResponseUnitUnbound") %>%
       mutate(x = levs1[3]) %>% as.matrix()
   ) %>%
     `colnames<-`(c("channels", "spend", "response", "type")) %>%

@@ -684,14 +684,29 @@ robyn_mmm <- function(InputCollect,
             adstock <- check_adstock(adstock)
 
             #### Transform media for model fitting
-            temp <- run_transformations(
-              all_media = InputCollect$all_media,
-              window_start_loc = InputCollect$rollingWindowStartWhich,
-              window_end_loc = InputCollect$rollingWindowEndWhich,
-              dt_mod = InputCollect$dt_mod,
-              adstock = InputCollect$adstock,
-              dt_hyppar = hypParamSam, ...
-            )
+            # Check for quick commerce parameters
+            qc_params <- list()
+            if (!is.null(InputCollect$qcommerce_meta)) {
+              qc_params <- list(
+                date_vector = InputCollect$qcommerce_meta$date_vector,
+                channel_types = InputCollect$qcommerce_meta$channel_types,
+                city_tier = InputCollect$qcommerce_meta$city_tier,
+                context_aware = InputCollect$qcommerce_meta$context_aware
+              )
+            }
+
+            temp <- do.call(run_transformations, c(
+              list(
+                all_media = InputCollect$all_media,
+                window_start_loc = InputCollect$rollingWindowStartWhich,
+                window_end_loc = InputCollect$rollingWindowEndWhich,
+                dt_mod = InputCollect$dt_mod,
+                adstock = InputCollect$adstock,
+                dt_hyppar = hypParamSam
+              ),
+              qc_params,
+              list(...)
+            ))
 
             #####################################
             #### Split train & test and prepare data for modelling

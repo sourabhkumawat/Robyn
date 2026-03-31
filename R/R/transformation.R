@@ -376,8 +376,13 @@ run_transformations <- function(all_media,
                                 window_end_loc,
                                 dt_mod,
                                 adstock,
-                                dt_hyppar, ...) {
-  dt_modAdstocked <- select(dt_mod, -.data$ds)
+                                dt_hyppar,
+                                date_vector = NULL,      # NEW: Date vector for context
+                                channel_types = NULL,   # NEW: Channel types for each media (simplified)
+                                city_tier = "tier1",     # NEW: City classification
+                                context_aware = FALSE,   # NEW: Enable context adjustments
+                                ...) {
+  dt_modAdstocked <- select(dt_mod, -ds)
   window_loc <- window_start_loc:window_end_loc
   adstocked_collect <- list()
   saturated_total_collect <- list()
@@ -393,12 +398,25 @@ run_transformations <- function(all_media,
     m <- dt_modAdstocked[, all_media[v]][[1]]
     if (adstock == "geometric") {
       theta <- dt_hyppar[paste0(all_media[v], "_thetas")][[1]][[1]]
+
+      # NEW: Use context-aware adstock for quick commerce
+      if (context_aware && !is.null(date_vector) && !is.null(channel_types)) {
+        channel_type <- if (length(channel_types) >= v) channel_types[v] else "general"
+        x_list <- robyn_qcommerce_adstock(m, theta, date_vector, channel_type, city_tier)
+      } else {
+        # Original Robyn behavior
+        x_list <- adstock_geometric(m, theta)
+      }
     }
     if (grepl("weibull", adstock)) {
       shape <- dt_hyppar[paste0(all_media[v], "_shapes")][[1]][[1]]
       scale <- dt_hyppar[paste0(all_media[v], "_scales")][[1]][[1]]
+      # For now, keep original weibull (can extend later if needed)
+      x_list <- transform_adstock(m, adstock, theta = NULL, shape = shape, scale = scale)
     }
-    x_list <- transform_adstock(m, adstock, theta = theta, shape = shape, scale = scale)
+    if (!adstock %in% c("geometric") && !grepl("weibull", adstock)) {
+      x_list <- transform_adstock(m, adstock, theta = theta, shape = shape, scale = scale)
+    }
     input_total <- x_list$x_decayed
     input_immediate <- if (adstock == "weibull_pdf") x_list$x_imme else m
     adstocked_collect[[v]] <- input_total

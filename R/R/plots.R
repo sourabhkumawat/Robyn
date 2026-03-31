@@ -672,7 +672,7 @@ robyn_onepagers <- function(
       }
 
       ## Aggregate one-pager plots and export
-      ver <- as.character(utils::packageVersion("Robyn"))
+      ver <- tryCatch(as.character(utils::packageVersion("Robyn")), error = function(e) "local-source")
       rver <- utils::sessionInfo()$R.version
       onepagerTitle <- sprintf("One-pager for Model ID: %s", sid)
       onepagerCaption <- sprintf("Robyn v%s [R-%s.%s]", ver, rver$major, rver$minor)
@@ -838,7 +838,7 @@ allocation_plots <- function(
   )
   df_roi <- resp_metric %>%
     mutate(spend = .data$total_spend, response = .data$total_response) %>%
-    select(.data$type, .data$spend, .data$response) %>%
+    select("type", "spend", "response") %>%
     pivot_longer(cols = !"type") %>%
     left_join(resp_metric, "type") %>%
     mutate(
@@ -895,7 +895,7 @@ allocation_plots <- function(
     ) %>%
     select(.data$channel, .data$Initial, .data$Bounded, .data$Unbounded) %>%
     `colnames<-`(c("channel", levs1)) %>%
-    tidyr::pivot_longer(names_to = "type", values_to = "response_share", -.data$channel) %>%
+    tidyr::pivot_longer(names_to = "type", values_to = "response_share", -channel) %>%
     left_join(
       dt_optimOut %>%
         mutate(
@@ -904,9 +904,9 @@ allocation_plots <- function(
           Bounded = .data$optmSpendShareUnit,
           Unbounded = .data$optmSpendShareUnitUnbound
         ) %>%
-        select(.data$channel, .data$Initial, .data$Bounded, .data$Unbounded) %>%
+        select("channel", "Initial", "Bounded", "Unbounded") %>%
         `colnames<-`(c("channel", levs1)) %>%
-        tidyr::pivot_longer(names_to = "type", values_to = "spend_share", -.data$channel),
+        tidyr::pivot_longer(names_to = "type", values_to = "spend_share", -channel),
       by = c("channel", "type")
     ) %>%
     left_join(
@@ -917,9 +917,9 @@ allocation_plots <- function(
           Bounded = .data$optmSpendUnit,
           Unbounded = .data$optmSpendUnitUnbound
         ) %>%
-        select(.data$channel, .data$Initial, .data$Bounded, .data$Unbounded) %>%
+        select("channel", "Initial", "Bounded", "Unbounded") %>%
         `colnames<-`(c("channel", levs1)) %>%
-        tidyr::pivot_longer(names_to = "type", values_to = "mean_spend", -.data$channel),
+        tidyr::pivot_longer(names_to = "type", values_to = "mean_spend", -channel),
       by = c("channel", "type")
     ) %>%
     left_join(
@@ -939,12 +939,12 @@ allocation_plots <- function(
             TRUE ~ .data$optmCpaUnitUnbound
           )
         ) %>%
-        select(.data$channel, .data$Initial, .data$Bounded, .data$Unbounded) %>%
+        select("channel", "Initial", "Bounded", "Unbounded") %>%
         `colnames<-`(c("channel", levs1)) %>%
         tidyr::pivot_longer(
           names_to = "type",
           values_to = ifelse(metric == "ROAS", "channel_roi", "channel_cpa"),
-          -.data$channel
+          -channel
         ),
       by = c("channel", "type")
     ) %>%
@@ -965,12 +965,12 @@ allocation_plots <- function(
             TRUE ~ 1 / .data$optmResponseMargUnitUnbound
           )
         ) %>%
-        select(.data$channel, .data$Initial, .data$Bounded, .data$Unbounded) %>%
+        select("channel", "Initial", "Bounded", "Unbounded") %>%
         `colnames<-`(c("channel", levs1)) %>%
         tidyr::pivot_longer(
           names_to = "type",
           values_to = ifelse(metric == "ROAS", "marginal_roi", "marginal_cpa"),
-          -.data$channel
+          -channel
         ),
       by = c("channel", "type")
     ) %>%
@@ -980,15 +980,15 @@ allocation_plots <- function(
     df_plots %>%
       select(c("channel", "type", "type_lab", "mean_spend")) %>%
       mutate(metric = "abs.mean\nspend") %>%
-      rename(values = .data$mean_spend),
+      rename(values = mean_spend),
     df_plots %>%
       select(c("channel", "type", "type_lab", "spend_share")) %>%
       mutate(metric = "mean\nspend") %>%
-      rename(values = .data$spend_share),
+      rename(values = spend_share),
     df_plots %>%
       select(c("channel", "type", "type_lab", "response_share")) %>%
       mutate(metric = "mean\nresponse") %>%
-      rename(values = .data$response_share),
+      rename(values = response_share),
     df_plots %>%
       select(c("channel", "type", "type_lab", starts_with("channel_"))) %>%
       mutate(metric = paste0("mean\n", metric)) %>%
