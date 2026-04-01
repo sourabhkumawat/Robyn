@@ -18,7 +18,7 @@ check_nas <- function(df, channels = NULL) {
     strs <- sprintf("%s (%s | %s%%)", naVals$variable, naVals$missing, naVals$missingness)
     stop(paste0(
       "Dataset ", name, " contains missing (NA) values. ",
-      "These values must be removed or fixed for Robyn to properly work.\n  Missing values: ",
+      "These values must be removed or fixed for mmm to properly work.\n  Missing values: ",
       paste(strs, collapse = ", ")
     ))
   }
@@ -26,7 +26,7 @@ check_nas <- function(df, channels = NULL) {
   if (any(have_inf > 0)) {
     stop(paste0(
       "Dataset ", name, " contains Inf values. ",
-      "These values must be removed or fixed for Robyn to properly work.\n  Check: ",
+      "These values must be removed or fixed for mmm to properly work.\n  Check: ",
       paste(names(which(have_inf > 0)), collapse = ", ")
     ))
   }

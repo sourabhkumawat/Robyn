@@ -179,7 +179,7 @@ robyn_load <- function(robyn_object, select_build = NULL, quiet = FALSE) {
   if ("robyn_exported" %in% class(robyn_object) || is.list(robyn_object)) {
     Robyn <- robyn_object
     objectPath <- Robyn$listInit$OutputCollect$plot_folder
-    robyn_object <- paste0(objectPath, "/Robyn_", Robyn$listInit$OutputCollect$selectID, ".RDS")
+    robyn_object <- paste0(objectPath, "/mmm_", Robyn$listInit$OutputCollect$selectID, ".RDS")
     if (!dir.exists(objectPath)) {
       stop("Directory does not exist or is somewhere else. Check: ", objectPath)
     }

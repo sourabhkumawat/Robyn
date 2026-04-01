@@ -418,7 +418,7 @@ robyn_train <- function(InputCollect, hyper_collect,
             "This trial contains", num_coef0_mod, "iterations with all media coefficient = 0.",
             "Please reconsider your media variable choice if the pareto choices are unreasonable.",
             "\n   Recommendations:",
-            "\n1. Increase hyperparameter ranges for 0-coef channels to give Robyn more freedom",
+            "\n1. Increase hyperparameter ranges for 0-coef channels to give mmm more freedom",
             "\n2. Split media into sub-channels, and/or aggregate similar channels, and/or introduce other media",
             "\n3. Increase trials to get more samples"
           ))

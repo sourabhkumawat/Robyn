@@ -613,4 +613,4 @@ qc_final_results <- list(
 )
 
 save(qc_final_results, file = file.path(qc_directory, "QC_Robyn_Final_Results.RData"))
-print(paste("Final results saved to:", file.path(qc_directory, "QC_Robyn_Final_Results.RData")))
+print(paste("Final results saved to:", file.path(qc_directory, "QC_mmm_Final_Results.RData")))

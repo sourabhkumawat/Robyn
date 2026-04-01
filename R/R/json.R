@@ -436,7 +436,7 @@ robyn_chain <- function(json_file) {
   attr(chainData, "json_files") <- json_files
   attr(chainData, "chain") <- ids # names(chainData)
   if (length(ids) != length(names(chainData))) {
-    warning("Can't replicate chain-like results if you don't follow Robyn's chain structure")
+    warning("Can't replicate chain-like results if you don't follow mmm's chain structure")
   }
   return(invisible(chainData))
 }

@@ -675,7 +675,7 @@ robyn_onepagers <- function(
       ver <- tryCatch(as.character(utils::packageVersion("Robyn")), error = function(e) "local-source")
       rver <- utils::sessionInfo()$R.version
       onepagerTitle <- sprintf("One-pager for Model ID: %s", sid)
-      onepagerCaption <- sprintf("Robyn v%s [R-%s.%s]", ver, rver$major, rver$minor)
+      onepagerCaption <- sprintf("mmm v%s [R-%s.%s]", ver, rver$major, rver$minor)
       calc <- ifelse(type == "ROAS",
         "Total ROAS = sum of response / sum of spend",
         "Total CPA = sum of spend / sum of response"

@@ -467,7 +467,7 @@ robyn_inputs <- function(dt_input = NULL,
       error = function(e) "dev"
     ))
     InputCollect$version <- sprintf(
-      "Robyn (%s) v%s [R-%s.%s]",
+      "mmm (%s) v%s [R-%s.%s]",
       origin, ver, rver$major, rver$minor
     )
   }

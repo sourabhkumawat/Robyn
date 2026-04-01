@@ -114,7 +114,7 @@ robyn_outputs <- function(InputCollect, OutputModels,
   )
   folder_var <- ifelse(!as.integer(depth) > 0, "init", paste0("rf", depth))
   if (is.null(plot_folder_sub)) {
-    plot_folder_sub <- paste("Robyn", format(Sys.time(), "%Y%m%d%H%M"), folder_var, sep = "_")
+    plot_folder_sub <- paste("mmm", format(Sys.time(), "%Y%m%d%H%M"), folder_var, sep = "_")
   }
   plot_folder <- gsub("//+", "/", paste0(plot_folder, "/", plot_folder_sub, "/"))
   if (!dir.exists(plot_folder) && export) {

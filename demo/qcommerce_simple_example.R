@@ -69,12 +69,12 @@ if(!is.null(OutputCollect$qcommerce_validation)) {
   print(OutputCollect$qcommerce_validation$validation_summary)
 }
 
-print("=== SUCCESS: Quick Commerce optimization with standard Robyn functions! ===")
+print("=== SUCCESS: Quick Commerce optimization with standard mmm functions! ===")
 print("Key benefits:")
-print("✓ Same familiar Robyn workflow")
+print("✓ Same familiar mmm workflow")
 print("✓ QC hyperparameters auto-generated")
 print("✓ QC validation automatically included")
-print("✓ All existing Robyn features preserved")
+print("✓ All existing mmm features preserved")
 print("✓ Works with robyn_allocator(), robyn_refresh(), etc.")
 
 ################################################################
@@ -94,4 +94,4 @@ print("- Built-in QC validation")
 print("- 6-year India festival calendar")
 print("- Context-aware transformations")
 
-print("\nResult: Same Robyn workflow + Quick Commerce superpowers! 🚀")
+print("\nResult: Same mmm workflow + Quick Commerce superpowers! 🚀")

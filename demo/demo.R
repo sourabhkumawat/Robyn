@@ -44,7 +44,7 @@ robyn_demo_setwd <- function() {
     for (i in seq_len(10)) { # guard against infinite loops
       if (has_robyn_layout(cur)) {
         setwd(cur)
-        message("Working directory set to Robyn repo root: ", cur)
+        message("Working directory set to mmm repo root: ", cur)
         return(invisible(cur))
       }
       parent <- dirname(cur)
@@ -191,7 +191,7 @@ robyn_demo_setup_nevergrad()
 # packageVersion("Robyn")
 
 ## Option 2: Use local files for debugging (development) - ACTIVE
-cat("Loading local Robyn functions for debugging...\n")
+cat("Loading local mmm functions for debugging...\n")
 
 # Source all local Robyn functions in correct order
 source("R/R/imports.R")        # Import statements
@@ -223,13 +223,13 @@ load("R/data/dt_simulated_weekly.RData")
 load("R/data/dt_prophet_holidays.RData")
 load("R/data/df_curve_reach_freq.RData")
 
-cat("✅ Local Robyn functions loaded successfully!\n")
+cat("✅ Local mmm functions loaded successfully!\n")
 cat("✅ Quick Commerce functions loaded for debugging!\n")
 cat("✅ Demo data files loaded: dt_simulated_weekly, dt_prophet_holidays, df_curve_reach_freq\n")
 
 # Quick verification that key functions are available
 if (exists("robyn_inputs") && exists("robyn_run") && exists("robyn_outputs")) {
-  cat("✅ Core functions verified: robyn_inputs, robyn_run, robyn_outputs\n")
+  cat("✅ Core functions verified: mmm_inputs, mmm_run, mmm_outputs\n")
 } else {
   cat("❌ ERROR: Core functions not found. Check source files.\n")
 }

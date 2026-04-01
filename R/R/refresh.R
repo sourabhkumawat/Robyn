@@ -171,7 +171,7 @@ robyn_refresh <- function(json_file = NULL,
     }
     if (!all(objectCheck %in% names(Robyn))) {
       stop(
-        "Saved Robyn object is corrupted. It should contain these elements:\n ",
+        "Saved mmm object is corrupted. It should contain these elements:\n ",
         paste(objectCheck, collapse = ", "),
         ".\n Please, re run the model or fix it manually."
       )
@@ -187,7 +187,7 @@ robyn_refresh <- function(json_file = NULL,
       listOutputPrev <- Robyn$listInit$OutputCollect
       InputCollectRF$xDecompAggPrev <- listOutputPrev$xDecompAgg
       if (length(unique(Robyn$listInit$OutputCollect$resultHypParam$solID)) > 1) {
-        stop("Run robyn_write() first to select and export any Robyn model")
+        stop("Run robyn_write() first to select and export any mmm model")
       }
     } else {
       listName <- paste0("listRefresh", refreshCounter - 1)
