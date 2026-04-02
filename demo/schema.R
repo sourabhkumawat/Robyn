@@ -18,7 +18,7 @@
 # $ decomp.rssd : Numeric. DECOMP.RSSE decomposition root-sum of squared error. Main objective function.
 # $ rsq_train : Numeric. Adjusted R squared of training data.
 # $ lambda : Numeric. The L2 regularization parameter.
-# $ iterPar : Integer. Parallel iteration in inner loop of robyn_mmm that equals number of cores.
+# $ iterPar : Integer. Parallel iteration in inner loop of robyn_run that equals number of cores.
 # $ iterNG : Integer. Pseudo-calc: iterNG = round(total_iteration / iterPar)
 # $ df.int : Integer. Degree of freedom for intercept that takes on 0 or 1.
 # $ trial : Integer. Trial of current model.

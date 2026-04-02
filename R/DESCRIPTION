@@ -25,6 +25,7 @@ Imports:
     lubridate,
     nloptr,
     patchwork (>= 1.3.1),
+    png,
     prophet,
     reticulate,
     stringr,

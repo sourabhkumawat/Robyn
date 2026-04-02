@@ -34,6 +34,7 @@
 #' @importFrom nloptr nloptr
 #' @importFrom parallel detectCores
 #' @importFrom patchwork guide_area plot_layout plot_annotation wrap_plots
+#' @importFrom png readPNG
 #' @importFrom prophet add_regressor add_seasonality fit.prophet prophet
 #' @importFrom reticulate tuple use_condaenv import conda_create conda_install py_module_available
 #' virtualenv_create py_install use_virtualenv

@@ -7,7 +7,7 @@
 #' Robyn Modelling Function
 #'
 #' \code{robyn_run()} consumes \code{robyn_input()} outputs,
-#' runs \code{robyn_mmm()}, and collects all modeling results.
+#' runs \code{robyn_run()}, and collects all modeling results.
 #'
 #' @inheritParams robyn_allocator
 #' @inheritParams robyn_outputs
@@ -189,7 +189,7 @@ robyn_run <- function(InputCollect = NULL,
   InputCollect$hyper_updated <- hyper_collect$hyper_list_all
 
   #####################################
-  #### Run robyn_mmm() for each trial
+  #### Run robyn_run() for each trial
 
   OutputModels <- robyn_train(
     InputCollect, hyper_collect,
@@ -330,7 +330,7 @@ Pareto-front ({x$pareto_fronts}) All solutions ({nSols}): {paste(x$allSolutions,
 #' Train Robyn Models
 #'
 #' \code{robyn_train()} consumes output from \code{robyn_input()}
-#' and runs the \code{robyn_mmm()} on each trial.
+#' and runs the \code{robyn_run()} on each trial.
 #'
 #' @inheritParams robyn_run
 #' @param hyper_collect List. Containing hyperparameter bounds. Defaults to
@@ -375,7 +375,7 @@ robyn_train <- function(InputCollect, hyper_collect,
       for (tab in these) OutputModels[[1]]$resultCollect[[tab]]$solID <- dt_hyper_fixed$solID
     }
   } else {
-    ## Run robyn_mmm() for each trial if hyperparameters are not all fixed
+    ## Run robyn_run() for each trial if hyperparameters are not all fixed
     check_init_msg(InputCollect, cores)
     if (!quiet) {
       message(paste(
@@ -1007,7 +1007,7 @@ robyn_mmm <- function(InputCollect,
     },
     error = function(err) {
       if (length(resultCollectNG) > 1) {
-        msg <- "Error while running robyn_mmm(); providing PARTIAL results"
+        msg <- "Error while running robyn_run(); providing PARTIAL results"
         warning(msg)
         message(paste(msg, err, sep = "\n"))
         sysTimeDopar <- rep(Sys.time() - t0, 3)
@@ -1083,7 +1083,7 @@ robyn_mmm <- function(InputCollect,
   ))
 }
 
-#' @rdname robyn_mmm
+#' @rdname robyn_run
 #' @param inputs List. Elements to pass sub-functions
 #' @export
 model_decomp <- function(inputs = list()) {

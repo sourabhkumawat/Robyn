@@ -117,7 +117,7 @@ List. Contains all trained models. Class: \code{robyn_models}.
 }
 \description{
 \code{robyn_run()} consumes \code{robyn_input()} outputs,
-runs \code{robyn_mmm()}, and collects all modeling results.
+runs \code{robyn_run()}, and collects all modeling results.
 }
 \examples{
 \dontrun{

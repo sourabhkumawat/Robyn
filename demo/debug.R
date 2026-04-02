@@ -61,8 +61,8 @@ seed = 123
 quiet = FALSE
 
 
-## debug robyn_mmm
-args(robyn_mmm)
+## debug robyn_run
+args(robyn_run)
 #InputCollect
 #hyper_collect
 add_penalty_factor = FALSE

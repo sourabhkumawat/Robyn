@@ -623,7 +623,7 @@ InputCollect$ExposureCollect$plot_spend_exposure
 ## Run all trials and iterations. Use ?robyn_run to check parameter definition
 OutputModels <- robyn_run(
   InputCollect = InputCollect, # feed in all model specification
-  cores = NULL, # NULL defaults to (max available - 1)
+  cores = 4, # NULL defaults to (max available - 1)
   iterations = 2000, # 2000 recommended for the dummy dataset with no calibration
   trials = 5, # 5 recommended for the dummy dataset
   ts_validation = FALSE, # 3-way-split time series for NRMSE validation.
@@ -682,7 +682,7 @@ print(OutputCollect)
 
 ## Compare all model one-pagers and select one that mostly reflects your business reality
 print(OutputCollect)
-select_model <- "5_257_2" # Pick one of the models from OutputCollect to proceed
+select_model <- "2_218_8" # Pick one of the models from OutputCollect to proceed
 
 #### Version >=3.7.1: JSON export and import (faster and lighter than RDS files)
 ExportedModel <- robyn_write(InputCollect, OutputCollect, select_model, export = TRUE)

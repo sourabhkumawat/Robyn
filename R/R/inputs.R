@@ -465,7 +465,7 @@ robyn_inputs <- function(dt_input = NULL,
     origin <- tryCatch(
       ifelse(is.null(utils::packageDescription("Robyn")$Repository), "dev", "stable"),
       error = function(e) "dev"
-    ))
+    )
     InputCollect$version <- sprintf(
       "mmm (%s) v%s [R-%s.%s]",
       origin, ver, rver$major, rver$minor

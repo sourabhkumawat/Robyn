@@ -96,5 +96,5 @@ List. Iteration results to include in \code{robyn_run()} results.
 }
 \description{
 \code{robyn_train()} consumes output from \code{robyn_input()}
-and runs the \code{robyn_mmm()} on each trial.
+and runs the \code{robyn_run()} on each trial.
 }

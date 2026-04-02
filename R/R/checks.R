@@ -800,7 +800,7 @@ check_hyper_fixed <- function(InputCollect, dt_hyper_fixed, add_penalty_factor) 
     hypParamSamName <- c(hypParamSamName, paste0(for_penalty, "_penalty"))
   }
   if (hyper_fixed) {
-    ## Run robyn_mmm if using old model result tables
+    ## Run robyn_run if using old model result tables
     dt_hyper_fixed <- as_tibble(dt_hyper_fixed)
     if (nrow(dt_hyper_fixed) != 1) {
       stop(paste(

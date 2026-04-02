@@ -238,6 +238,57 @@ robyn_plots <- function(
 }
 
 
+## Helper: build the logo + "Marketing Mix Model" header panel
+.build_mmm_header <- function() {
+  logo_candidates <- c(
+    system.file("man/figures/logo.png", package = "Robyn"),
+    file.path(getwd(), "R/man/figures/logo.png"),
+    file.path(getwd(), "man/figures/logo.png")
+  )
+  logo_path <- Filter(file.exists, logo_candidates)[1]
+  logo_grob <- tryCatch(
+    grid::rasterGrob(png::readPNG(logo_path), interpolate = TRUE),
+    error = function(e) NULL
+  )
+  p <- ggplot(data.frame(x = c(0, 1), y = c(0, 1)), aes(x, y)) +
+    scale_x_continuous(limits = c(0, 1), expand = c(0, 0)) +
+    scale_y_continuous(limits = c(0, 1), expand = c(0, 0)) +
+    theme_void() +
+    theme(plot.background = element_rect(fill = "white", color = NA))
+  text_x <- 0.02
+  if (!is.null(logo_grob)) {
+    p <- p + annotation_custom(logo_grob, xmin = 0.01, xmax = 0.08, ymin = -Inf, ymax = Inf)
+    text_x <- 0.10
+  }
+  p + annotate("text",
+    x = text_x, y = 0.5,
+    label = "Marketing Mix Model",
+    size = 7, fontface = "bold", hjust = 0, color = "#1B1B1B"
+  )
+}
+
+## Helper: build a plain-text title + optional subtitle panel
+.build_title_panel <- function(title, subtitle = "") {
+  p <- ggplot(data.frame(x = c(0, 1), y = c(0, 1)), aes(x, y)) +
+    scale_x_continuous(limits = c(0, 1), expand = c(0, 0)) +
+    scale_y_continuous(limits = c(0, 1), expand = c(0, 0)) +
+    theme_void() +
+    theme(plot.background = element_rect(fill = "white", color = NA)) +
+    annotate("text",
+      x = 0.01, y = ifelse(nzchar(subtitle), 0.72, 0.5),
+      label = title,
+      size = 5.5, fontface = "bold", hjust = 0, color = "#1B1B1B"
+    )
+  if (nzchar(subtitle)) {
+    p <- p + annotate("text",
+      x = 0.01, y = 0.28,
+      label = subtitle,
+      size = 3.5, hjust = 0, color = "#555555"
+    )
+  }
+  p
+}
+
 ####################################################################
 #' Generate and Export Robyn One-Pager Plots
 #'
@@ -686,11 +737,17 @@ robyn_onepagers <- function(
         "\n", onepagerCaption
       )
       get_height <- length(unique(plotMediaShareLoopLine$rn)) / 5
-      pg <- (p2 + p5) / (p1 + p8) / (p3 + p7) / (p4 + p6) +
-        patchwork::plot_layout(heights = c(get_height, get_height, get_height, 1)) +
-        # pg <- wrap_plots(p2, p5, p1, p8, p3, p7, p4, p6, ncol = 2) +
+
+      ## Logo + "Marketing Mix Model" header panel
+      p_logo <- .build_mmm_header()
+
+      ## Title panel (One-pager for Model ID + subtitle)
+      subtitle_label <- if (!is.null(errors) && nzchar(errors)) errors else ""
+      p_title <- .build_title_panel(onepagerTitle, subtitle_label)
+
+      pg <- p_logo / p_title / (p2 + p5) / (p1 + p8) / (p3 + p7) / (p4 + p6) +
+        patchwork::plot_layout(heights = c(0.35, 0.3, get_height, get_height, get_height, 1)) +
         plot_annotation(
-          title = onepagerTitle, subtitle = errors,
           theme = theme_lares(background = "white"),
           caption = onepagerCaption
         )
@@ -1144,23 +1201,25 @@ allocation_plots <- function(
 
   # Gather all plots into a single one
   min_period_loc <- which.min(as.integer(lapply(dt_optimOut$periods, function(x) str_split(x, " ")[[1]][1])))
-  outputs[["plots"]] <- plots <- (p1 / p2 / p3) +
+  alloc_title <- paste0("Budget Allocation Onepager for Model ID ", select_model)
+  alloc_subtitle <- sprintf(
+    "%s\nSimulation date range: %s to %s (%s) | Scenario: %s",
+    errors,
+    dt_optimOut$date_min[1],
+    dt_optimOut$date_max[1],
+    dt_optimOut$periods[min_period_loc],
+    scenario
+  )
+  p_logo_alloc <- .build_mmm_header()
+  p_title_alloc <- .build_title_panel(alloc_title, alloc_subtitle)
+  inner_plots <- (p1 / p2 / p3) +
     plot_layout(heights = c(
       0.8, 0.2 + length(dt_optimOut$channels) * 0.2,
       ceiling(length(dt_optimOut$channels) / 3)
-    )) +
-    plot_annotation(
-      title = paste0("Budget Allocation Onepager for Model ID ", select_model),
-      subtitle = sprintf(
-        "%s\nSimulation date range: %s to %s (%s) | Scenario: %s",
-        errors,
-        dt_optimOut$date_min[1],
-        dt_optimOut$date_max[1],
-        dt_optimOut$periods[min_period_loc],
-        scenario
-      ),
-      theme = theme_lares(background = "white", )
-    )
+    ))
+  outputs[["plots"]] <- plots <- (p_logo_alloc / p_title_alloc / inner_plots) +
+    plot_layout(heights = c(0.12, 0.12, 1), guides = "collect") +
+    plot_annotation(theme = theme_lares(background = "white"))
 
   # Gather all plots
   if (export) {
